@@ -18,56 +18,56 @@ export default {
   },
   computed: {
     showFullScreenBtn () {
-      return window.navigator.userAgent.indexOf('MSIE') < 0
+      return window.navigator.userAgent.indexOf('MSIE') < 0;
     }
   },
   methods: {
     handleFullscreen () {
-      let main = document.body
+      let main = document.body;
       if (this.value) { // 取消全屏
         if (document.exitFullscreen) { // W3C
-          document.exitFullscreen()
+          document.exitFullscreen();
         } else if (document.mozCancelFullScreen) { // FireFox
-          document.mozCancelFullScreen()
+          document.mozCancelFullScreen();
         } else if (document.webkitCancelFullScreen) { // Chrome
-          document.webkitCancelFullScreen()
+          document.webkitCancelFullScreen();
         } else if (document.msExitFullscreen) { // IE
-          document.msExitFullscreen()
+          document.msExitFullscreen();
         }
       } else { // 请求全屏
         if (main.requestFullscreen) {
-          main.requestFullscreen()
+          main.requestFullscreen();
         } else if (main.mozRequestFullScreen) {
-          main.mozRequestFullScreen()
+          main.mozRequestFullScreen();
         } else if (main.webkitRequestFullScreen) {
-          main.webkitRequestFullScreen()
+          main.webkitRequestFullScreen();
         } else if (main.msRequestFullscreen) {
-          main.msRequestFullscreen()
+          main.msRequestFullscreen();
         }
       }
     },
     handleChange () {
-      this.handleFullscreen()
+      this.handleFullscreen();
     }
   },
   created () {
-    let isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen
-    isFullscreen = !!isFullscreen
+    let isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+    isFullscreen = !!isFullscreen;
     document.addEventListener('fullscreenchange', () => {
-      this.$emit('input', !this.value)
-    })
+      this.$emit('input', !this.value);
+    });
     document.addEventListener('mozfullscreenchange', () => {
-      this.$emit('input', !this.value)
-    })
+      this.$emit('input', !this.value);
+    });
     document.addEventListener('webkitfullscreenchange', () => {
-      this.$emit('input', !this.value)
-    })
+      this.$emit('input', !this.value);
+    });
     document.addEventListener('msfullscreenchange', () => {
-      this.$emit('input', !this.value)
-    })
-    this.$emit('input', isFullscreen)
+      this.$emit('input', !this.value);
+    });
+    this.$emit('input', isFullscreen);
   }
-}
+};
 </script>
 
 <style>

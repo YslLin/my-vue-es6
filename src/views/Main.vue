@@ -40,8 +40,8 @@
 </template>
 
 <script>
-import fullScreen from './main-components/full-screen'
-import lockScreen from './main-components/lock-screen/lock-screen'
+import fullScreen from './main-components/full-screen';
+import lockScreen from './main-components/lock-screen/lock-screen';
 
 export default {
   name: 'Main',
@@ -53,28 +53,28 @@ export default {
     return {
       isCollapsed: false,
       isFullScreen: false
-    }
+    };
   },
   computed: {
     rotateIcon () {
       return [
         'menu-icon',
         this.isCollapsed ? 'rotate-icon' : ''
-      ]
+      ];
     },
     menuitemClasses () {
       return [
         'menu-item',
         this.isCollapsed ? 'collapsed-menu' : ''
-      ]
+      ];
     }
   },
   methods: {
     collapsedSider () {
-      this.$refs.side1.toggleCollapse()
+      this.$refs.side1.toggleCollapse();
     }
   }
-}
+};
 </script>
 
 <style lang="less">

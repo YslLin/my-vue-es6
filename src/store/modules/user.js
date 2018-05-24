@@ -5,9 +5,9 @@ const user = {
   },
   mutations: {
     setHeadImgPath (state, value) {
-      localStorage.headImgPath = value
+      localStorage.headImgPath = value;
     }
   }
-}
+};
 
-export default user
+export default user;
