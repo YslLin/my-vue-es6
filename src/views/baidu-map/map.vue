@@ -1,14 +1,20 @@
 <!--  -->
 <template>
-    <div class="baidu-map">
+    <div id="mapContainer" class="baidu-map">
     </div>
 </template>
 
 <script>
-import a from './util/map.js';
+import Draw,{ Control } from './util/Draw'
+import Edit from './util/Edit.js';
 
 export default {
-  name: 'map'
+  name: 'baidumap',
+  mixins:[Draw, Edit],
+  mounted(){
+    this.initialize();
+    Control(this.map, this.toggle);
+  }
 };
 </script>
 

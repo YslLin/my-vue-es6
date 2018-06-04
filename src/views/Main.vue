@@ -10,7 +10,9 @@
         <i-menu active-name="1-2" theme="dark" width="auto" :class="menuitemClasses">
           <menu-item name="1-1">
             <icon type="ios-navigate"></icon>
-            <span>Option 1</span>
+            <span>
+              <router-link :to="{ name:'baidumap_index'}">百度地图</router-link>
+            </span>
           </menu-item>
           <menu-item name="1-2">
             <icon type="search"></icon>
@@ -31,7 +33,7 @@
             <lock-screen></lock-screen>
           </div>
         </i-header>
-        <i-content :style="{margin: '20px', background: '#fff', minHeight: '260px'}">
+        <i-content :style="{margin: '20px', background: '#fff', minHeight: '260px' }">
           <router-view></router-view>
         </i-content>
       </layout>
@@ -51,7 +53,7 @@ export default {
   },
   data () {
     return {
-      isCollapsed: false,
+      isCollapsed: true,
       isFullScreen: false
     };
   },

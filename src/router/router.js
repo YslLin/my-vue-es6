@@ -19,9 +19,14 @@ export const otherRouter = { // 主页上的路由(个人中心、 消息中心�
 // 菜单栏路由
 export const appRouter = [
   {
-    path: '/',
-    name: 'HelloWorld',
-    component: Main
+    path: '/baidu-map',
+    icon: 'key',
+    name: 'baidumap',
+    title: '百度地图',
+    component: Main,
+    children: [
+      { path: 'index', title: '权限管理', name: 'baidumap_index', component: () => import('@/views/baidu-map/map') }
+    ]
   }
 ];
 
