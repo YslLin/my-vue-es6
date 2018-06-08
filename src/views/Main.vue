@@ -7,11 +7,11 @@
           <Icon type="ios-analytics" class="logo"></Icon>
           <span v-show="!isCollapsed">YslLin</span>
         </div>
-        <i-menu active-name="1-2" theme="dark" width="auto" :class="menuitemClasses">
-          <menu-item name="1-1">
+        <i-menu active-name="1-2" theme="dark" width="auto" :class="menuitemClasses" @on-select="handleChange">
+          <menu-item name="baidumap_index">
             <icon type="ios-navigate"></icon>
             <span>
-              <router-link :to="{ name:'baidumap_index'}">百度地图</router-link>
+              百度地图
             </span>
           </menu-item>
           <menu-item name="1-2">
@@ -74,6 +74,21 @@ export default {
   methods: {
     collapsedSider () {
       this.$refs.side1.toggleCollapse();
+    },
+    handleChange (name) {
+      console.log(name);
+      let willpush = true;
+      if (this.beforePush !== undefined) {
+        if (!this.beforePush(name)) {
+          willpush = false;
+        }
+      }
+      if (willpush) {
+        this.$router.push({
+          name: name
+        });
+      }
+      this.$emit('on-change', name);
     }
   }
 };

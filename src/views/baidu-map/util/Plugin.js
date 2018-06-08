@@ -1,4 +1,4 @@
-import turf from 'turf'
+// import turf from 'turf'
 
 //////////////////// GeoJSON对象转换工具 //////////////////////////
 
@@ -129,7 +129,7 @@ export const ClipperLib = {
     const alat = this._sevenDecimalTointegers(a.lat);
     const blng = this._sevenDecimalTointegers(b.lng);
     const blat = this._sevenDecimalTointegers(b.lat);
-    return Math.abs(alng - blng) <= 2 && Math.abs(alat - blat) <= 2;
+    return Math.abs(alng - blng) <= 90 && Math.abs(alat - blat) <= 90;
   },
   /**
    * 擦除冗余点
@@ -149,13 +149,42 @@ export const ClipperLib = {
 };
 
 //////////////////////// 裁剪去重 /////////////////////////////////
+// function ClipperError(message, type) {
+//   this.name = 'ClipperError';
+//   this.type = type || -1;
+//   this.message = message || '自动去重失败';
+//   this.stack = (new Error()).stack;
+// }
+//
+// ClipperError.prototype = Object.create(Error.prototype);
+// ClipperError.prototype.constructor = ClipperError;
+
+class ClipperError extends Error{
+  constructor(message, type) {
+    super(message);
+    this.name = 'ClipperError';
+    this.type = type || -1;
+    this.message = message || '自动去重失败';
+    // this.stack = (new Error()).stack;
+  }
+
+  toString(){
+    return '111111';
+  }
+}
 
 export const Clipper = {
+  /**
+   * 执行去重
+   * @param _polygon 去重区域
+   * @param _layers 覆盖物数组
+   * @returns {*|Array}
+   */
   execute(_polygon, _layers) {
-    var polygonGeo = GeoJSON.toGeoJSON(ClipperLib.erasingPoints(_polygon.getPath()));
+    var polygonGeo = GeoJSON.toGeoJSON(_polygon.getPath());
     if (ClipperLib.containKinks(polygonGeo)) {
       // console.error('裁剪区域包含自交点');
-      return '裁剪区域包含自交点';
+      throw new ClipperError('不能交叉画图', 1001);
     }
     // 找到所有与之相交的多边形覆盖物
     _layers = _layers
@@ -170,51 +199,42 @@ export const Clipper = {
       // 与之相交的
       .filter((l) => {
         try {
-          return !!turf.intersect(polygonGeo, GeoJSON.toGeoJSON(l.getPath()));
+          var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), -1, {units: 'meters'});
+          // var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), -1, 'meters');
+          return !!turf.intersect(polygonGeo, buffered);
         } catch (e) {
-          // console.error('不能用自交点切割多边形');
+          console.error('不能用自交点切割多边形');
           return false;
         }
       });
-    this._solution = _polygon;
-    var states = this.quchong(_layers);
-    var results = {}
-    results.state = 200;
-    results.points = ClipperLib.erasingPoints(this._solution.getPath());
-    states.forEach((a) => {
-      if (a !== 200) {
-        results.state = a;
-      }
-    });
-    // console.log(arra);
-    return results;
+    var points = this._cutting(_layers, _polygon);
+    return ClipperLib.erasingPoints(points.getPath());
   },
-  quchong(_layers, frequency = 5) {
-    let states = [];
-    let state = true;
+  /**
+   * 裁剪
+   * @param _layers 重叠多边形数组
+   * @param _polygon 裁剪区域
+   * @param frequency 递归次数
+   * @returns {*} 裁剪后的多边形区域
+   * @private
+   */
+  _cutting(_layers, _polygon, frequency = 5) {
+    this._solution = _polygon;
     _layers.forEach((l) => {
-      // 裁剪参照物添加缓冲区
-      var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), 0.001, 'meters');
+      // 裁剪参照物添加缓冲区 1毫米
+      var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), 0.001, {units: 'meters'});
+      // var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), 0.001, 'meters');
       let diff = null;
-      // try {
-      //   return !!turf.intersect(GeoJSON.toGeoJSON(this._solution.getPath()), GeoJSON.toGeoJSON(l.getPath()));
-      // } catch (e) {
-      //   // console.error('不能用自交点切割多边形');
-      //   return false;
-      // }
       try {
         // 发现不同层
         diff = turf.difference(GeoJSON.toGeoJSON(this._solution.getPath()), buffered);
-      }catch (e) {
-        console.log(e);
+      } catch (e) {
+        console.error(e);
       }
       // 裁剪区域被完全覆盖的情况下，返回null
       if (!diff) {
         /** return console.error('裁剪区域被其它区域完全覆盖');*/
-        l.setStrokeColor('red');
-        states.push(1002);
-        state = false;
-        return;
+        throw new ClipperError('所画区域在原有区域内，完全重合，请重新画图', 1002);
       }
       // 如果结果是多多边形，将它分割成规则的多边形
       if (diff.geometry.type === 'MultiPolygon') {
@@ -224,28 +244,20 @@ export const Clipper = {
         }, []);
 
         // 只取多多边形数组中的第一个多边形
-        l.getMap().removeOverlay(this._solution);
         this._solution = GeoJSON.toPolygon(geoJSONs[0].coordinates[0]);
-        l.getMap().addOverlay(this._solution);
-        states.push(200);
       } else {
         if (diff.geometry.coordinates.length > 1) {
           /** console.error('裁剪区域完全覆盖其它区域');*/
-          states.push(1003);
-          state = false;
-          return;
+          throw new ClipperError('将原有区域完全覆盖，请重新画图', 1003);
         }
-        l.getMap().removeOverlay(this._solution);
         this._solution = GeoJSON.toPolygon(diff.geometry.coordinates[0]);
-        l.getMap().addOverlay(this._solution);
-        states.push(200);
       }
     });
+    return this._solution;
     // if ((states.indexOf(1003) > -1 || states.indexOf(1002) > -1) && frequency > 0) {
     //   frequency--;
-    //   states = this.quchong(_layers,frequency);
+    //   states = this._cutting(_layers,frequency);
     // }
-    return states;
   }
 };
 
@@ -393,7 +405,7 @@ export const Snapping = {
     let snapLatLng = closestLayer.latlng;
 
     // 标记捕捉前的最小距离（以像素为单位）
-    this.snapDistance = 30;
+    this.snapDistance = 20;
     const minDistance = this.snapDistance;
     if (!isMarker) {
       snapLatLng = this._checkPrioritiySnapping(closestLayer);
@@ -482,11 +494,8 @@ export const Snapping = {
    * @private
    */
   _calcLayerDistances(latlng, layer) {
-    // 这是折线、标记还是多边形?
+    // 这是多边形?
     const isPolygon = layer instanceof BMap.Polygon;
-    // 目前没有吸附折线与marker覆盖物的需求 先保留
-    // const isPolyline = !(layer instanceof L.Polygon) && layer instanceof L.Polyline;
-    // const isMarker = layer instanceof L.Marker || layer instanceof L.CircleMarker;
 
     // 我们想要捕捉的点P(被拖动的标记)
     const P = latlng;
@@ -498,19 +507,6 @@ export const Snapping = {
       // polygon
       coords = layer.getPath();
     }
-    // else if (isPolyline) {
-    //   // polyline
-    //   coords = layer.getLatLngs();
-    // } else if (isMarker) {
-    //   // marker
-    //   coords = layer.getLatLng();
-    //
-    //   // 返回标记的信息，不再需要计算
-    //   return {
-    //     latlng: Object.assign({}, coords),
-    //     distance: this._getDistance(map, coords, P),
-    //   };
-    // }
 
     // 层的最近段（两点之间的线）
     let closestSegment;

@@ -13,7 +13,7 @@ export default {
   mixins:[Draw, Edit],
   mounted(){
     this.initialize();
-    Control(this.map, this.toggle);
+    Control(this.map, this.toggleDraw);
   }
 };
 </script>

@@ -12,6 +12,7 @@ const Edit = {
   },
   methods: {
 
+    // 切换编辑模式
     toggleEdit(layer) {
       if (!layer._enabled) {
         this.enableEdit(layer);
@@ -21,17 +22,27 @@ const Edit = {
     },
 
     enableEdit(layer) {
+      if(layer == null){
+        return;
+      }
+
       if (!this.map) {
         this.map = layer.getMap();
       }
+
       if (layer._enabled) {
-        this.disableEdit(layer);
+        return;
       }
+
       layer._enabled = true;
+
       layer.markers = [];
+
       layer.addEventListener('click',()=>{
         this.toggleEdit(layer);
       })
+
+      // 初始化编辑节点
       this._initMarkers(layer);
     },
 
@@ -39,30 +50,37 @@ const Edit = {
       if (!layer._enabled) {
         return false;
       }
-      const results = Clipper.execute(layer, this.map.getOverlays()); // 处理裁剪去重 (要裁剪的区域, 获取所有覆盖物)
-      if (results.state === 200) {
+
+      try {
+        const results = Clipper.execute(layer, this.map.getOverlays()); // 处理裁剪去重 (要裁剪的区域, 获取所有覆盖物)
+
         layer._enabled = false;
+
         for (var i = 0; i < layer.markers.length; i++) {
           this.map.removeOverlay(layer.markers[i]);
         }
         layer.markers = [];
+
         this.map.removeOverlay(layer);
-        var over = new BMap.Polygon(results.points, this.stylePolygon);
+        var over = new BMap.Polygon(results, this.stylePolygon);
         this.map.addOverlay(over);
-        this.toggleEdit(over);
-      } else {
-        layer.setStrokeColor('red');
-        this.$Modal.error({
-          content: results.describe
-        });
+        // this.toggleEdit(over);
+      }catch (e) {
+        if(e.name === 'ClipperError'){
+          this.$Modal.error({
+            title: '提示框',
+            content: e.message
+          });
+        }
       }
     },
 
     _initMarkers(layer) {
       // 实心块
-      this.icon_solid = new BMap.Icon(img_solid, new BMap.Size(8, 8));
+      this.icon_solid || (this.icon_solid = new BMap.Icon(img_solid, new BMap.Size(8, 8)));
       // 空心块
-      this.icon_hollow = new BMap.Icon(img_hollow, new BMap.Size(8, 8));
+      this.icon_hollow || (this.icon_hollow = new BMap.Icon(img_hollow, new BMap.Size(8, 8)));
+
       const paths = layer.getPath();
       const length = paths.length;
       for (var i = 0; i < length; i++) {
@@ -72,6 +90,12 @@ const Edit = {
       }
     },
 
+    /**
+     * 获取直线上中心点
+     * @param A 点
+     * @param B 点
+     * @returns {Point} 中心点
+     */
     getCenterPoint(A, B) {
       var lat = ((A.lat + B.lat) / 2).toFixed(6);
       var lng = ((A.lng + B.lng) / 2).toFixed(6);
@@ -79,47 +103,54 @@ const Edit = {
       return C;
     },
 
+    /**
+     * 创建编辑节点
+     * @param layer 区域
+     * @param point 坐标点
+     * @param icon 图标
+     * @param index 索引位置
+     * @param genre 0 节点, 1 中心点
+     * @param type solid 实心点, hollow 空心点
+     */
     createEditMarker(layer, point, icon, index, genre, type) {
       var marker = new BMap.Marker(point, {icon: icon});
       marker.genre = genre;
       marker.type = type;
+      // 开启拖拽功能
       marker.enableDragging();
-      if (marker.Gi) { // 避免重复添加事件
-        if (marker.Gi.onrightclick) {
-          marker.Gi.onrightclick = {};
-        }
-        if (marker.Gi.ondragstart) {
-          marker.Gi.ondragstart = {};
-        }
-        if (marker.Gi.ondragging) {
-          marker.Gi.ondragging = {};
-        }
-        if (marker.Gi.ondragend) {
-          marker.Gi.ondragend = {};
-        }
+
+      // 判断是在角上的节点 还是在线上的中心点
+      if (genre == 0) {
+        // 初始化实心点
+        this._initSolid(layer, marker);
+      } else if (genre == 1) {
+        // 初始化空心点
+        this._initHollow(layer, marker);
       }
-      if (genre == 0) {//在角上
-        this.createSolid(layer, marker);
-      } else if (genre == 1) {//在线上
-        this.createHollow(layer, marker);
-      }
+
+      // 添加marker节点
       this.map.addOverlay(marker);
+
+      // 插入区域对象markers节点数组中
       layer.markers.splice(index, 0, marker);
     },
 
+    /**
+     * 获取索引位置
+     * @param point
+     * @param markers
+     * @param genre
+     * @returns {*}
+     */
     getIndexPoint(point, markers, genre) {
       var obj = null;
-      // var index = markers.findIndex(point);
-      var index = -1;
-      for (var i = 0; i < markers.length; i++) {
-        if (point.equals(markers[i].getPosition())) {
-          index = i;
-          break;
-        }
-      }
+      // 返回数组中第一个相等的元素索引
+      var index = markers.findIndex( p => point.equals(p.getPosition()));
+
       if (index == -1) {
         return null;
       }
+
       if (genre == 0) { // 实点
         if (index % 2 != 0) {
           console.error("取点错误,不是实点");
@@ -148,11 +179,10 @@ const Edit = {
       return obj;
     },
 
-    createSolid(layer, marker) {
+    _initSolid(layer, marker) {
       var solidRightclickAction = () => {
         var paths = layer.getPath();
         if (paths.length > 3) {
-          this.map.removeOverlay(this._layer);
           //index, indexBefore, indexAfter, moveBefore, moveAfter
           var obj = this.getIndexPoint(marker.getPosition(), layer.markers, marker.genre);
           this.map.removeOverlay(layer.markers[obj.index]);
@@ -207,7 +237,7 @@ const Edit = {
       marker.addEventListener("rightclick", solidRightclickAction);
     },
 
-    createHollow(layer, marker) {
+    _initHollow(layer, marker) {
       var hollowRightclickAction = () => {
         //index, indexBefore, indexAfter, willBefore, willAfter
         var obj = this.getIndexPoint(marker.getPosition(), layer.markers, marker.genre);
