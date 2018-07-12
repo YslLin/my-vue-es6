@@ -159,17 +159,13 @@ export const ClipperLib = {
 // ClipperError.prototype = Object.create(Error.prototype);
 // ClipperError.prototype.constructor = ClipperError;
 
-class ClipperError extends Error{
+class ClipperError extends Error {
   constructor(message, type) {
     super(message);
     this.name = 'ClipperError';
     this.type = type || -1;
     this.message = message || '自动去重失败';
     // this.stack = (new Error()).stack;
-  }
-
-  toString(){
-    return '111111';
   }
 }
 
@@ -183,9 +179,18 @@ export const Clipper = {
   execute(_polygon, _layers) {
     var polygonGeo = GeoJSON.toGeoJSON(_polygon.getPath());
     if (ClipperLib.containKinks(polygonGeo)) {
-      // console.error('裁剪区域包含自交点');
       throw new ClipperError('不能交叉画图', 1001);
     }
+
+    let area = turf.area(polygonGeo);
+    if (area < 100) {
+      console.log(area);
+      throw new ClipperError('区域面积不能小于两千平方米', 1005);
+    }
+
+    // 验证角度
+    this._validAngle(_polygon);
+
     // 找到所有与之相交的多边形覆盖物
     _layers = _layers
     // 覆盖物是可见的
@@ -200,10 +205,9 @@ export const Clipper = {
       .filter((l) => {
         try {
           var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), -1, {units: 'meters'});
-          // var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), -1, 'meters');
-          return !!turf.intersect(polygonGeo, buffered);
+          return !!turf.intersect(buffered, polygonGeo) || turf.booleanOverlap(buffered, polygonGeo);
         } catch (e) {
-          console.error('不能用自交点切割多边形');
+          console.error(e);
           return false;
         }
       });
@@ -258,6 +262,34 @@ export const Clipper = {
     //   frequency--;
     //   states = this._cutting(_layers,frequency);
     // }
+  },
+  _validAngle(_polygon){
+      let ps = _polygon.getPath();
+      let front_angle = null;
+      ps.forEach((p, i) => {
+        var point1 = turf.point([p.lng, p.lat]);
+        var n = i + 1 == ps.length ? 0 : i + 1;
+        var point2 = turf.point([ps[n].lng, ps[n].lat]);
+
+        var behind_angle = turf.rhumbBearing(point1, point2);
+        if (front_angle === null) {
+          point2 = turf.point([ps[ps.length - 1].lng, ps[ps.length - 1].lat]);
+
+          front_angle = turf.rhumbBearing(point2, point1);
+        }
+
+        if ((front_angle <= 0 && behind_angle >= 0) || (front_angle >= 0 && behind_angle <= 0)) {
+          var knot_angle = Math.abs(180 - (Math.abs(front_angle) + Math.abs(behind_angle)));
+          if (knot_angle <= 4) {
+            console.log('∠', knot_angle);
+            throw new ClipperError('图形角度过小', 1004);
+          }
+        }
+
+        front_angle = behind_angle;
+      });
+
+      return true;
   }
 };
 

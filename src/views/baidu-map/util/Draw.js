@@ -11,14 +11,14 @@ const YSL = {
         fillColor: '#bccde4', // 填充颜色。当参数为空时，圆形将没有填充效果。
         strokeWeight: 1, // 边线的宽度，以像素为单位。
         strokeOpacity: 0.8, // 边线透明度，取值范围0 - 1。
-        fillOpacity: 0.6, // 填充的透明度，取值范围0 - 1。
+        fillOpacity: 0.4, // 填充的透明度，取值范围0 - 1。
         strokeStyle: 'dashed' // 边线的样式，solid或dashed。
       },
       styleMarker: {
         icon: new BMap.Icon(markerImg, new BMap.Size(8, 8)), // 点上的实心图标
         enableClicking: false // 是否可点击
       },
-      snappable: true, // 鼠标吸附功能开关
+      snappable: false, // 鼠标吸附功能开关
       prohibitSelfIntersection: true, // 禁止自相交开关
       doesSelfIntersect: false, // 当前区域是否自交
       enabledDraw: false, // 绘图状态
@@ -33,7 +33,7 @@ const YSL = {
   methods: {
     initialize() {
       this.map = new BMap.Map('mapContainer', {enableMapClick: false});
-      this.map.centerAndZoom('北京', 11);
+      this.map.centerAndZoom('北京', 22);
       this.map.enableScrollWheelZoom();
     },
 
@@ -50,7 +50,7 @@ const YSL = {
       this.enabledDraw = true;
 
       // 添加Marker光标
-      this.hintMarker = new BMap.Marker({}, this.styleMarker);
+      this.hintMarker = new BMap.Marker(new BMap.Point(125.048515, 48.867064), this.styleMarker);
       this.map.addOverlay(this.hintMarker);
 
       // 添加提示标签
@@ -130,6 +130,7 @@ const YSL = {
 
       // 重置地图光标
       this.map.setDefaultCursor("url('http://api0.map.bdimg.com/images/openhand.cur'), default");
+
     },
     // 切换绘图模式
     toggleDraw() {
@@ -301,7 +302,7 @@ const YSL = {
         this.map.addOverlay(_polygon);
 
         // 开启编辑模式
-        this.toggleEdit(_polygon);
+        // this.toggleEdit(_polygon);
 
         // 关闭绘图
         this.disableDraw();
@@ -309,10 +310,10 @@ const YSL = {
         // 删除最后一个节点
         this.deleteAPoint();
         if (e.name === 'ClipperError') {
-          setTimeout(() => {
             this.setLabelText(e.message);
-          }, 100)
+            return;
         }
+        console.error(e);
       }
     }
   }
@@ -406,7 +407,38 @@ export function Control(_map, toggle) {
     div.style.backgroundColor = 'white';
     // 绑定事件
     div.onclick = function () {
-      toggle();
+      toggle('drawButton');
+    };
+    // 添加DOM控件 元素到地图中
+    map.getContainer().appendChild(div);
+    // 将DOM 元素返回
+    return div;
+  };
+
+  // 合并多边形
+  function MergeControl() {
+    // 默认停靠位置和偏移量
+    this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+    this.defaultOffset = new BMap.Size(120, 10);
+  }
+
+  // 通过JavaScript 的prototype 属性继承于BMap.Control
+  MergeControl.prototype = new BMap.Control();
+
+  // 自定义控件必须实现initialize 方法，并且将控件的DOM 元素返回
+  // 在本方法中创建个div 元素作为控件的容器，并将其添加到地图容器中
+  MergeControl.prototype.initialize = function (map) {
+    // 创建一个DOM 元素
+    var div = document.createElement('div');
+    // 添加文字说明
+    div.appendChild(document.createTextNode('》》》合并《《《'));
+    // 设置样式
+    div.style.cursor = 'pointer';
+    div.style.border = '1px solid gray';
+    div.style.backgroundColor = 'white';
+    // 绑定事件
+    div.onclick = function () {
+      toggle('mergeButton');
     };
     // 添加DOM控件 元素到地图中
     map.getContainer().appendChild(div);
@@ -418,6 +450,7 @@ export function Control(_map, toggle) {
   _map.addControl(new Zoom15()); // 设置15级缩放级别
   _map.addControl(new ClearOverlays()); // 清除覆盖物
   _map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT}));// 右上角，添加默认缩放平移控件
-  _map.addControl(new DrawControl());// 右上角，添加默认缩放平移控件
+  _map.addControl(new DrawControl());// 绘图
+  _map.addControl(new MergeControl());// 合并
 };
 

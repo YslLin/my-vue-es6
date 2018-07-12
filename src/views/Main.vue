@@ -14,9 +14,9 @@
               百度地图
             </span>
           </menu-item>
-          <menu-item name="1-2">
+          <menu-item name="jsxlsx_index">
             <icon type="search"></icon>
-            <span>Option 2</span>
+            <span>导出Excel</span>
           </menu-item>
           <menu-item name="1-3">
             <icon type="settings"></icon>

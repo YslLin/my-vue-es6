@@ -1,7 +1,7 @@
 import {GeoJSON, ClipperLib, Clipper, Snapping} from './Plugin'
 
 const img_solid = require('@/assets/HT.png');
-const img_hollow = require('@/assets/HT1_gaitubao_com_8x8.png');
+const img_hollow = require('@/assets/HT1.png');
 
 const Edit = {
   data: function () {

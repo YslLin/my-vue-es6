@@ -25,7 +25,17 @@ export const appRouter = [
     title: '百度地图',
     component: Main,
     children: [
-      { path: 'index', title: '权限管理', name: 'baidumap_index', component: () => import('@/views/baidu-map/map') }
+      { path: 'index', title: '画图', name: 'baidumap_index', component: () => import('@/views/baidu-map/map') }
+    ]
+  },
+  {
+    path: '/js-xlsx',
+    icon: 'key',
+    name: 'baidumap',
+    title: '导出Excel',
+    component: Main,
+    children: [
+      { path: 'index', title: '导出Excel', name: 'jsxlsx_index', component: () => import('@/views/js-xlsx/js-xlsx') }
     ]
   }
 ];
