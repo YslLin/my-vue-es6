@@ -184,7 +184,7 @@ export const Clipper = {
 
     let area = turf.area(polygonGeo);
     if (area < 100) {
-      console.log(area);
+      console.log('面积', area);
       throw new ClipperError('区域面积不能小于两千平方米', 1005);
     }
 
@@ -263,33 +263,33 @@ export const Clipper = {
     //   states = this._cutting(_layers,frequency);
     // }
   },
-  _validAngle(_polygon){
-      let ps = _polygon.getPath();
-      let front_angle = null;
-      ps.forEach((p, i) => {
-        var point1 = turf.point([p.lng, p.lat]);
-        var n = i + 1 == ps.length ? 0 : i + 1;
-        var point2 = turf.point([ps[n].lng, ps[n].lat]);
+  _validAngle(_polygon) {
+    let ps = _polygon.getPath();
+    let front_angle = null;
+    ps.forEach((p, i) => {
+      var point1 = turf.point([p.lng, p.lat]);
+      var n = i + 1 == ps.length ? 0 : i + 1;
+      var point2 = turf.point([ps[n].lng, ps[n].lat]);
 
-        var behind_angle = turf.rhumbBearing(point1, point2);
-        if (front_angle === null) {
-          point2 = turf.point([ps[ps.length - 1].lng, ps[ps.length - 1].lat]);
+      var behind_angle = turf.rhumbBearing(point1, point2);
+      if (front_angle === null) {
+        point2 = turf.point([ps[ps.length - 1].lng, ps[ps.length - 1].lat]);
 
-          front_angle = turf.rhumbBearing(point2, point1);
+        front_angle = turf.rhumbBearing(point2, point1);
+      }
+
+      if ((front_angle <= 0 && behind_angle >= 0) || (front_angle >= 0 && behind_angle <= 0)) {
+        var knot_angle = Math.abs(180 - (Math.abs(front_angle) + Math.abs(behind_angle)));
+        if (knot_angle <= 4) {
+          console.log('∠', knot_angle);
+          throw new ClipperError('图形角度过小', 1004);
         }
+      }
 
-        if ((front_angle <= 0 && behind_angle >= 0) || (front_angle >= 0 && behind_angle <= 0)) {
-          var knot_angle = Math.abs(180 - (Math.abs(front_angle) + Math.abs(behind_angle)));
-          if (knot_angle <= 4) {
-            console.log('∠', knot_angle);
-            throw new ClipperError('图形角度过小', 1004);
-          }
-        }
+      front_angle = behind_angle;
+    });
 
-        front_angle = behind_angle;
-      });
-
-      return true;
+    return true;
   }
 };
 
@@ -682,3 +682,32 @@ export const Snapping = {
     delete this._snapLatLng;
   }
 };
+
+export const Merge = {
+  execute(_layers) {
+    this._solution = GeoJSON.toGeoJSON(_layers[0].getPath());
+    _layers.forEach((l, i) => {
+      if (i === 0) return;
+      // 合并区域添加缓冲区 1厘米
+      var buffered = turf.buffer(GeoJSON.toGeoJSON(l.getPath()), 0.01, {units: 'meters'});
+      let union;
+      try {
+        // 联合缓冲后的覆盖物
+        union = turf.union(this._solution, buffered);
+      } catch (e) {
+        console.error(e);
+      }
+      console.log(union);
+
+      this._solution = union;
+    });
+    console.log(this._solution);
+    // 如果结果类型是多多边形覆盖物 则 提示失败信息
+    if (this._solution.geometry.type === 'MultiPolygon') {
+      throw new ClipperError('选择的区域没有交集，无法合并区域', 1001);
+    } else if (this._solution.geometry.coordinates.length > 1) {
+      // throw new ClipperError('空心多边形，无法合并区域', 1001);
+    }
+    return ClipperLib.erasingPoints(GeoJSON.toPolygon(this._solution.geometry.coordinates[0]).getPath());
+  },
+}

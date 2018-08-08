@@ -9,7 +9,7 @@ const YSL = {
       stylePolygon: {
         strokeColor: '#3388ff', // 边线颜色。
         fillColor: '#bccde4', // 填充颜色。当参数为空时，圆形将没有填充效果。
-        strokeWeight: 1, // 边线的宽度，以像素为单位。
+        strokeWeight: 2, // 边线的宽度，以像素为单位。
         strokeOpacity: 0.8, // 边线透明度，取值范围0 - 1。
         fillOpacity: 0.4, // 填充的透明度，取值范围0 - 1。
         strokeStyle: 'dashed' // 边线的样式，solid或dashed。
@@ -28,12 +28,13 @@ const YSL = {
       points: [],
       markers: [], // 节点上的marker集合
       updateLabelDate: null, // 修改提示标题后的计时时间
+      drawButtonName: 'drawButton', // 绘图按钮名称
     }
   },
   methods: {
     initialize() {
       this.map = new BMap.Map('mapContainer', {enableMapClick: false});
-      this.map.centerAndZoom('北京', 22);
+      this.map.centerAndZoom('北京', 14);
       this.map.enableScrollWheelZoom();
     },
 
@@ -306,6 +307,9 @@ const YSL = {
 
         // 关闭绘图
         this.disableDraw();
+
+        // 修改绘图按钮样式
+        this.buttons[this.drawButtonName].toggle(false);
       } catch (e) {
         // 删除最后一个节点
         this.deleteAPoint();
@@ -322,7 +326,7 @@ export default YSL;
 
 ////////////////////// 地图控件 //////////////////////
 
-export function Control(_map, toggle) {
+export function Control(_map, toggle, drawButtonName, mergeButtonName) {
 
   // 设置11级缩放级别
   function Zoom11() {
@@ -399,6 +403,8 @@ export function Control(_map, toggle) {
   DrawControl.prototype.initialize = function (map) {
     // 创建一个DOM 元素
     var div = document.createElement('div');
+    div.id = 'drawButton';
+    div.className = 'noselect';
     // 添加文字说明
     div.appendChild(document.createTextNode('》》》画图《《《'));
     // 设置样式
@@ -407,7 +413,7 @@ export function Control(_map, toggle) {
     div.style.backgroundColor = 'white';
     // 绑定事件
     div.onclick = function () {
-      toggle('drawButton');
+      toggle(drawButtonName);
     };
     // 添加DOM控件 元素到地图中
     map.getContainer().appendChild(div);
@@ -432,13 +438,15 @@ export function Control(_map, toggle) {
     var div = document.createElement('div');
     // 添加文字说明
     div.appendChild(document.createTextNode('》》》合并《《《'));
+    div.id = 'mergeButton';
+    div.className = 'noselect';
     // 设置样式
     div.style.cursor = 'pointer';
     div.style.border = '1px solid gray';
     div.style.backgroundColor = 'white';
     // 绑定事件
     div.onclick = function () {
-      toggle('mergeButton');
+      toggle(mergeButtonName);
     };
     // 添加DOM控件 元素到地图中
     map.getContainer().appendChild(div);
