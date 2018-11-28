@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>快速体验 Vue</title>
+  <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+  <style>
+    .app{
+      color: #2b85e4;
+    }
+  </style>
+</head>
+<body>
+<div id="app" class="app">
+  <!--双向数据绑定-->
+  双向数据绑定： <input type="text" v-model="name" placeholder="书名"/><button type="button" @click="addBook()">添加</button>
+  <h2>《 {{ name }} 》</h2>
+  <ul>
+    <li v-for="book in books">{{ book.name }}</li>
+  </ul>
+
+  <p>日期：{{ date | formatDate('yyyy-MM-dd hh:mm:ss') }}</p>
+
+  <!-- 输出HTML 而非将数据解析后的纯文本-->
+  v-html：<sapn v-html="link"></sapn>
+
+
+  <!--双大括号 {{}} 为 Mustache 语法-->
+  <!--以#开始、以/结束表示区块-->
+  <!--<p>{{#msg}}{{sex}},{{age}}{{/msg}}</p>-->
+  <p>Mustache 语法：{{msg.sex}},{{msg.age}} （但除基本的文本插值方法以外，其它方法都不可用。）</p>
+  <p v-pre> {{ name }} v-pre：空的 {{}} 写在标签内会导致页面渲染失败。可以使用 v-pre 跳过这个元素的编译过程。</p>
+  <p v-pre>在{{}}中，可以使用js表达式进行简单的运算</p>
+  <span v-pre>{{ number / 10 }}</span>：{{ number / 10 }}；
+  <span v-pre>{{ msg.sex === 'Male' ? '男' : '女' }}</span>：{{ msg.sex === 'Male' ? '男' : '女' }}；
+  <span v-pre>{{ text.split(',').reverse().join(',') }}</span>：{{ text.split(',').reverse().join(',') }}；
+  <script>
+    var app = new Vue({
+      // id 挂载、css 挂载、HTMLElement 对象挂载、简写对象挂载（非JS标准，但浏览器都支持）
+      el: '#app',
+      // el: '.app',
+      // el: app,
+      // el: document.getElementById('app'),
+      data: {
+        name: '',
+        books: [
+          { name: '《丘吉尔的黑狗》'},
+          { name: '《原则》'},
+          { name: '《自控力》'},
+          { name: '《思考快与慢》'},
+        ],
+        date: new Date(),
+        link: '<a href="#">这是一个连接</a>',
+        msg: {
+          sex: 'Male',
+          age: 23,
+        },
+        number: 100,
+        text: '123,456',
+      },
+      created(){
+        console.log('Vue 生命周期钩子：');
+        console.log('created 实例创建完成后调用，但尚未挂载，$el 不可用。适用于处理初始化数据');
+        console.log('此时访问 $el 为：undefined');
+        console.log('--------------------------------------');
+      },
+      mounted(){
+        console.log('mounted $el挂载到实例之后调用，一般第一个业务逻辑会写在这里');
+        console.log('挂载成功后，可以通过 this.$el 来访问该DOM元素');
+        console.dir(this.$el);
+
+        console.log(++this.number);
+
+        // 定时修改时间
+        this.timer = setInterval(()=>{
+          this.date = new Date();
+        }, 1000);
+
+        console.log('--------------------------------------');
+      },
+      beforeDestroy(){
+        console.log('beforeDestroy 实例销毁之前调用，主要解绑 addEventListener 监听事件等');
+
+        clearInterval(this.timer); // 在 Vue 实例销毁前 清除定时器
+
+        console.log('------------------------------');
+      },
+      filters:{
+        /**
+         * 格式化日期
+         * @param value Date 日期
+         * @param fmt 需转换的格式
+         */
+        formatDate(value, fmt){
+          // filters 中无法使用this
+
+          // var date = new Date(value);
+          // var year = date.getFullYear();
+          // var month = padDate(date.getMonth() + 1);
+          // var day = padDate(date.getDate());
+          // var hours = padDate(date.getHours());
+          // var minutes = padDate(date.getMinutes());
+          // var seconds = padDate(date.getSeconds());
+          // return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+          let date = new Date(value);
+          if(/(y+)/.test(fmt)){
+            fmt = fmt.replace(RegExp.$1,(date.getFullYear()+'').substr(4-RegExp.$1.length));
+          }
+          console.log('RegExp.$1', RegExp.$1);
+          let o = {
+            'M+':date.getMonth() + 1, // 月
+            'd+':date.getDate(), // 日
+            'h+':date.getHours(), // 时
+            'm+':date.getMinutes(), // 分
+            's+':date.getSeconds() // 秒
+          };
+
+          // 遍历这个对象
+          for(let k in o){
+            if(new RegExp(`(${k})`).test(fmt)){
+              console.log('RegExp.$1', RegExp.$1);
+              let str = o[k] + '';
+              fmt = fmt.replace(RegExp.$1,(RegExp.$1.length===1)?str:padLeftZero(str));
+            }
+          }
+
+          return fmt;
+        },
+      },
+      methods:{
+        padDate(value){
+          return value < 10 ? '0' + value : value;
+        }
+      }
+    });
+    app.name = '掌控力';
+    console.log(app.name);
+
+    function padDate(value){
+      return value < 10 ? '0' + value : value;
+    }
+
+    function padLeftZero(str) {
+      return ('00'+str).substr(str.length);
+    }
+  </script>
+</div>
+</body>
+</html>

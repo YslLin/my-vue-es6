@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ECMAScript 6 新特性</title>
+</head>
+<body>
+<h1>F12 打开“开发者模式”查看控制台信息</h1>
+<script>
+  /**
+   * Object.defineProperty(obj, prop, descriptor)
+   *
+   * @Category: 该方法允许精确添加或修改对象的属性。
+   * 通过赋值操作添加的普通属性是可枚举的（for...in 或 Object.keys 方法），这些属性的值可以被改变，也可以被删除。
+   * 这个方法允许修改默认的额外选项（或配置）。
+   * 默认情况下，使用 Object.defineProperty() 添加的属性值是不可修改的。
+   *
+   * @Author: YSL
+   * @Date: 2018/9/7 18:46
+   */
+
+  const o = {}; // 创建一个新对象
+
+  o.a = 20;
+
+  // 在对象中添加一个属性与数据描述符的示例
+  Object.defineProperty(o, "b", {
+    value: 26,
+    writable: false,
+    enumerable: true,
+    configurable: true
+  });
+  o.b = 30; // 修改无效 因writable: false
+
+  Object.defineProperty(o, "c", {
+    value: 37,
+    writable: true,
+    enumerable: false,
+    configurable: true
+  });
+  console.dir(Object.keys(o)); // 无c属性 因enumerable: false
+
+  Object.defineProperty(o, "d", {
+    value: 43,
+    writable: true,
+    enumerable: true,
+    configurable: false
+  });
+  delete o.d; // 删除无效 因configurable: false
+
+  // 会抛错：无法重新定义不可配置的属性 因configurable: false
+  Object.defineProperty(o, "e", {
+    get: function () {
+      return o.e
+    },
+    set: function (newValue) {
+      o.e = newValue;
+    },
+  });
+
+  console.log(o.e);
+
+  console.dir(o);
+</script>
+</body>
+</html>

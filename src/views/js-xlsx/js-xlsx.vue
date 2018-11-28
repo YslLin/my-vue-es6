@@ -16,7 +16,6 @@
 <script>
   import XLSX from 'xlsx'
   import FileSaver from 'file-saver'
-  import axios from 'axios'
   import {ClipperLib, GeoJSON} from '../baidu-map/util/Plugin'
 
   export default {
@@ -27,12 +26,12 @@
         label: '',
         companyList: [
           {
-            value: '0',
-            label: '总公司'
+            value: '-1',
+            label: '所有分公司'
           },
           {
-            value: '-1',
-            label: '全部分公司'
+            value: '0',
+            label: '总公司'
           },
           {
             value: '1',
@@ -179,6 +178,10 @@
           {
             title: 'AREA_NAME',
             key: 'areaName'
+          },
+          {
+            title: '面积',
+            key: 'area'
           }
         ],
         list: [
@@ -221,14 +224,19 @@
           return;
         }
         this.$Spin.show();
-        axios.post(
-          'http://10.10.12.131:6555/v4/getDistributionCenter_pro?companyId=' + this.companyId
+        this.$axios.post(
+          'http://10.10.12.131:6555/v4/getDistributionCenter?companyId=' + this.companyId
         ).then(response => {
           let data1 = response.data.data;
 
           this.list = data1.filter(l => {
             const geo = GeoJSON.toGeoJSON(l.points);
-            return ClipperLib.containKinks(geo);
+            var area = turf.area(geo);
+            if(area < 1000 && !ClipperLib.containKinks(geo)){
+              l.area = area;
+              return true
+            }
+            return false;
           });
 
           this.$Spin.hide();

@@ -18,7 +18,8 @@ const YSL = {
         icon: new BMap.Icon(markerImg, new BMap.Size(8, 8)), // 点上的实心图标
         enableClicking: false // 是否可点击
       },
-      snappable: false, // 鼠标吸附功能开关
+      snappable: true
+      , // 鼠标吸附功能开关
       prohibitSelfIntersection: true, // 禁止自相交开关
       doesSelfIntersect: false, // 当前区域是否自交
       enabledDraw: false, // 绘图状态
@@ -32,11 +33,6 @@ const YSL = {
     }
   },
   methods: {
-    initialize() {
-      this.map = new BMap.Map('mapContainer', {enableMapClick: false});
-      this.map.centerAndZoom('北京', 14);
-      this.map.enableScrollWheelZoom();
-    },
 
     enableDraw() {
       if (!this.map) {

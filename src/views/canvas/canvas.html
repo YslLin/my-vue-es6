@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas 绘制2维3维图像</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0px;
+      padding: 0px;
+      overflow-x: hidden;
+      overflow-y: hidden;
+    }
+    #canvas1{
+      margin: 0px;
+      padding: 0px;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas1" width="800" height="600">这里是不支持canvas的信息描述</canvas>
+<script type="text/javascript">
+  const canvas1 = document.getElementById("canvas1");
+
+  console.dir(document.body);
+  canvas1.width = document.body.scrollWidth;
+  canvas1.height = document.body.scrollHeight;
+  const ctx = canvas1.getContext('2d');
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = 'red';
+  ctx.fillStyle = 'blue';
+  ctx.moveTo(0,0);
+  ctx.lineTo(canvas1.width, canvas1.height);
+  ctx.lineTo(canvas1.width, 0);
+  ctx.lineTo(0, 0);
+  ctx.fill();
+  ctx.stroke();
+
+  const div1 = document.createElement('div');
+  div1.style.position = 'absolute';
+  div1.style.top = '10px';
+  div1.style.left = '10px';
+  div1.style.backgroundColor = 'rgba(153,153,153,0.5)';
+  document.body.appendChild(div1);
+
+  canvas1.addEventListener("mousemove", function(e) {
+    div1.textContent = `X:${e.clientX}, Y:${e.clientY}`;
+    div1.style.top = e.clientY + 20 + 'px';
+    if(e.clientX + 20 + div1.clientWidth > canvas1.width){
+      div1.style.left = e.clientX - 10 - div1.clientWidth + 'px';
+    }else{
+      div1.style.left = e.clientX + 20 + 'px';
+    }
+
+
+  });
+
+  canvas1.onmousedown = () => {
+    canvas1.onmousemove = e => {
+      ctx.beginPath();
+      ctx.strokeStyle = "red";
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.stroke();
+    }
+    canvas1.onmouseup = () => {
+      canvas1.onmousemove = null;
+      canvas1.onmouseup = null;
+    }
+  }
+
+</script>
+</body>
+</html>

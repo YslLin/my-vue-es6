@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Observer（观察者）模式</title>
+</head>
+<body>
+
+<button id="addNewObserver">Add New Observer checkbox</button>
+<input id="mainCheckbox" type="checkbox"/>
+<div id="observersContainer"></div>
+
+<script>
+
+  /**
+   * 观察者集合
+   * @constructor
+   */
+  function ObserverList(){
+    this.observerList = [];
+  }
+
+  ObserverList.prototype.Add = function(obj){
+    return this.observerList.push(obj)
+  };
+
+  ObserverList.prototype.Empty = function () {
+    this.observerList = [];
+  };
+
+  ObserverList.prototype.Count = function () {
+    return this.observerList.length;
+  };
+
+  ObserverList.prototype.Get = function (index) {
+    if(index > -1 && index < this.observerList.length){
+      return this.observerList[index];
+    }
+  };
+
+  ObserverList.prototype.Insert = function (obj, index) {
+    let pointer = -1;
+    if (index === 0){
+      this.observerList.unshift(obj);
+      pointer = index;
+    } else if(index === this.observerList.length){
+      this.observerList.push(obj);
+      pointer = index;
+    }
+    return pointer;
+  };
+
+  ObserverList.prototype.IndexOf = function (obj, startIndex) {
+    let i = startIndex, pointer = -1;
+    while (i < this.observerList.length){
+      if(this.observerList[i] === obj){
+        pointer = i;
+      }
+      i++;
+    }
+    return pointer;
+  };
+
+  ObserverList.prototype.RemoveIndexAt = function (index){
+    if(index === 0){
+      this.observerList.shift();
+    } else if(index === this.observerList.length - 1){
+      this.observerList.pop();
+    }
+  };
+
+  /**
+   * 目标
+   * @constructor
+   */
+  function Subject(){
+    this.observers = new ObserverList();
+  }
+
+  // 添加观察者
+  Subject.prototype.AddObserver = function (observer) {
+    this.observers.Add(observer);
+  };
+
+  // 移除观察者
+  Subject.prototype.RemvoeObserver = function (observer) {
+    this.observers.RemoveIndexAt(this.observers.IndexOf(observer, 0));
+  };
+
+  // 通知观察者
+  Subject.prototype.Notify = function (context) {
+    let observerCount = this.observers.Count();
+    for (let i = 0; i < observerCount; i++){
+      this.observers.Get(i).Update(context);
+    }
+  };
+
+  /**
+   * 观察者
+   * @constructor
+   */
+  function Observer() {
+    this.Update = function () {
+
+    }
+  }
+
+  let addBtn = document.getElementById('addNewObserver'),
+    controlCheckbox = document.getElementById('mainCheckbox'),
+    container = document.getElementById('observersContainer');
+
+  // 具体目标 Concrete Subject
+  extend(new Subject(), controlCheckbox);
+
+  controlCheckbox['onclick'] = new Function('controlCheckbox.Notify(controlCheckbox.checked)');
+
+  addBtn['onclick'] = AddNewObserver;
+
+  function AddNewObserver() {
+
+    let check = document.createElement('input');
+    check.type = 'checkbox';
+
+    // 具体观察者 Concrete Observer
+    extend(new Observer(), check);
+
+    check.Update = function (value){
+      this.checked = value;
+    };
+
+    controlCheckbox.AddObserver(check);
+
+    container.appendChild(check);
+  }
+
+  // 使用extension 扩展对象
+  function extend(obj, extension){
+
+    // 只遍历了可枚举属性
+    for(let key in obj){
+      // if(obj.hasOwnProperty(key)){
+      //   console.log(key); // 只输出了observers 属性；忽略掉那些从原型链上继承到的属性
+      // }
+      console.log(key);
+      extension[key] = obj[key];
+    }
+
+    // 效果同上
+    // Object.keys(obj).forEach(key => {
+    //   console.log(key);
+    //   extension[key] = obj[key];
+    // })
+
+    // Error：is not iterable
+    // for (let key of obj) {
+    //   console.log(key);
+    //   extension[key] = obj[key];
+    // }
+
+  }
+
+  // var obj = {
+  //   name:'小明',
+  //   sex:'男',
+  //   year:'18'
+  // }
+  //
+  // for(var attr in obj){
+  //   console.log(attr);//name sex year say
+  // }
+  //
+  // say 放在下边将遍历不到 say 属性
+  // Object.prototype.say = function(){
+  //   alert('hello world!');
+  // }
+</script>
+</body>
+</html>
