@@ -157,30 +157,33 @@
         columns1: [
           {
             title: 'ID',
-            key: 'id'
+            key: 'id',
+            width: 80
           },
           {
             title: 'D_CODE',
-            key: 'dCode'
+            key: 'dCode',
+            width: 190
           },
           {
             title: 'DC_CODE',
-            key: 'dcCode'
+            key: 'dcCode',
+            width: 190
           },
           {
             title: 'DC_NAME',
-            key: 'dcName'
+            key: 'dcName',
           },
           {
             title: 'AREA_ID',
-            key: 'areaId'
+            key: 'areaId',
           },
           {
             title: 'AREA_NAME',
             key: 'areaName'
           },
           {
-            title: '面积',
+            title: '面积²',
             key: 'area'
           }
         ],
@@ -192,6 +195,7 @@
             dcName: '北京_朝阳营业所_新华联营业厅',
             areaId: '1001',
             areaName: '测试区域1',
+            area: 6500
           },
           {
             id: 2,
@@ -200,6 +204,7 @@
             dcName: '北京_朝阳营业所_新华联营业厅',
             areaId: '1001',
             areaName: '测试区域3',
+            area: 4652
           },
           {
             id: 3,
@@ -208,6 +213,7 @@
             dcName: '北京_朝阳营业所_新华联营业厅',
             areaId: '1001',
             areaName: '测试区域3',
+            area: 5894
           },
         ]
       }
