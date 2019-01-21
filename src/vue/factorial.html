@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>快速体验 Vue</title>
+  <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+  <style>
+    .app{
+      color: #2b85e4;
+    }
+  </style>
+</head>
+<body>
+<div id="app" class="app">
+  <input type="text" v-model="multiplier" placeholder="正整数"/><button type="button" @click="calculate()">阶乘</button>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      multiplier: 0,
+      count: 0,
+      outcome: 0,
+    },
+    methods: {
+      calculate(){
+        for(let i = 0; i <= this.multiplier; i++){
+          console.log(`${i}! = ${this.factorial(i)}`);
+        }
+      },
+      factorial(number){
+        return number <= 1 ? 1 : number * this.factorial(number -1)
+      }
+    }
+  })
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//g.alicdn.com/dingding/dinglogin/0.0.5/ddLogin.js"></script>
+</head>
+<body>
+<button onclick="getDingtalk()"> dddd</button>
+<!--内嵌钉钉扫码登录的二维码容器-->
+<div id="login_container"></div>
+<script>
+  function getDingtalk() {
+    DDLogin({
+      id: "login_container",
+      goto: encodeURIComponent(`https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingoaerqz4vnyaevmzrhn&response_type=code&scope=snsapi_login&state=456&redirect_uri=http%3A%2F%2F10.10.12.131%3A8080%2FgetUserInfoByCode`),
+      style: "border:none;background-color:#FFFFFF;",
+      width: "365",
+      height: "400"
+    });
+  }
+</script>
+</body>
+</html>
