@@ -1,0 +1,147 @@
+.dialog {
+  width: 722 upx;
+  height: 440 upx;
+  margin: auto;
+  background-color: #FFFFFF;
+  padding: 14 upx;
+  position: relative;
+
+  .head {
+    display: flex;
+    position: relative;
+    height: 80 upx;
+
+    .type {
+      // padding: 0 10upx;
+    }
+
+    .waybill {
+      color: var(--font-colorA);
+      padding: 0 20 upx;
+      flex-grow: 1;
+    }
+
+    .time {
+      font-size: 24 upx;
+      color: #FF8422;
+      padding: 0 20 upx;
+    }
+
+    .distance {
+      color: var(--font-colorB);
+    }
+
+    &:after {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 0%;
+      bottom: 0%;
+      width: 200%;
+      height: 1px;
+      border: 1px solid var(--border-color);
+      border-left: none;
+      border-bottom: none;
+      transform-origin: 0 0;
+      transform: scale(0.5);
+      pointer-events: none;
+    }
+
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    margin: 0 30 upx;
+
+    .content-top {
+      display: flex;
+      align-items: center;
+      padding-top: 14 upx;
+      color: var(--font-colorA);
+
+      .user-name {
+        font-size: 36 upx;
+        padding: 0 20 upx;
+      }
+
+      .lable {
+        display: flex;
+        width: 320 upx;
+        color: var(--font-colorB);
+
+        view {
+          margin: 0 10 upx;
+          padding: 0 15px;
+          border: 0.5px solid;
+          font-size: 24 upx;
+          height: 42 upx;
+          border-radius: 12 upx;
+        }
+
+        .jin {
+          border-color: #8A6DE9;
+          color: #8A6DE9;
+        }
+
+        .pi {
+          border-color: #DD524D;
+          color: #DD524D;
+        }
+      }
+
+    }
+
+    .address {
+      padding-top: 14 upx;
+
+      text:nth-child(2) {
+        padding: 0 upx 10 upx;
+        font-size: 26 upx;
+        color: var(--font-colorB);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre-wrap;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        // 控制多行的行数
+        -webkit-box-orient: vertical;
+
+      }
+    }
+
+    .communication {
+      display: flex;
+      width: 100%;
+      padding: 30 upx 10 upx;
+
+      > view {
+        flex: 1;
+
+      }
+
+      text {
+        padding-left: 20 upx;
+        color: var(--font-colorA);
+
+      }
+    }
+  }
+
+  .button-box {
+    display: flex;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    view {
+      flex: 1;
+
+    }
+
+    .abnormal {
+      background-color: #F6A93B;
+
+    }
+  }
+}

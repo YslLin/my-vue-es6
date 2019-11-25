@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="container">
+  <ul>
+    <li><a href="#">1</a></li>
+    <li><a href="#">2</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+    <li><a href="#">3</a></li>
+  </ul>
+
+  <!--<script id="worker" type="app/worker">-->
+  <script id="worker">
+    console.log('----加载子线程脚本----');
+    let self = this;
+    self.onmessage = function (event) {
+      // console.log('接收到主线程消息', event);
+      let data = event.data;
+      data.message && console.log('主线程说：' + data.message);
+      switch (data.type) {
+        case 1001:
+          self.postMessage({message: '瞅你咋地。'});
+          break;
+        case 1002:
+          self.postMessage({type: 1002, message: '瞅你咋地！'});
+          break;
+        case 1003:
+          self.postMessage({type: 1003, message: '试试就试试！'});
+          break;
+        case 1004:
+          self.postMessage({type: 1004, message: '用不着，小爷不干了！！！'});
+          // 子线程关闭 worker
+          // self.close();
+          break;
+        case 1005:
+          self.postMessage({type: 1005, message: '切！！！'});
+          break;
+        case 2001:
+          let res = f(data.nums, data.target);
+          let message = `这个${JSON.stringify(data.nums)}数组中，两数之和等于${data.target}的结果是：${JSON.stringify(res)}`;
+          self.postMessage({type: 2001, message: message});
+          break;
+        default:
+          self.postMessage({type: 404, message: '我听不懂。'});
+      }
+    };
+
+    function f(nums = [], target = 0) {
+      let r = [];
+      for (let i = 0, l = nums.length; i < 100000; i++) {
+        // let index = nums.indexOf(target - nums[i]);
+        // if (index > -1) {
+        //   r[0] = nums[i];
+        //   r[1] = nums[index];
+        //   break;
+        // }
+        console.log(i);
+      }
+      return r;
+    }
+
+    // Worker 线程
+    // self.close();
+  </script>
+  <script>
+    let blob = new Blob([document.querySelector('#worker').textContent]);
+    let url = URL.createObjectURL(blob);
+    let worker = new Worker(url, {name: 'myWorker'});
+
+    // 错误处理
+    worker.onerror = function (e) {
+      // message - 错误消息；filename - 发生错误的脚本文件；lineno - 发生错误的行。
+      console.log([
+        'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message
+      ].join(''));
+    };
+
+    // 发送消息无法序列化成字符串时，触发该事件
+    worker.onmessageerror = function (e) {
+      console.log(e);
+    };
+
+    // 接收子线程消息
+    worker.onmessage = function (event) {
+      // console.log('接收子线程消息：', event);
+      let data = event.data;
+      console.log('子线程说：' + data.message);
+      switch (data.type) {
+        // case 1001:
+        //   worker.postMessage({type: 1001, message: '你瞅啥！'});
+        //   break;
+        case 1002:
+          worker.postMessage({type: 1003, message: '再瞅一下试试。'});
+          break;
+        case 1003:
+          worker.postMessage({type: 1004, message: '老子把你停喽。'});
+          // 主线程关闭 worker
+          // worker.terminate();
+          break;
+        case 1004:
+          worker.postMessage({type: 1005, message: '慢着！把这个弄完再走。'});
+          break;
+        case 1005:
+          worker.postMessage({type: 2001, nums: [2, 7, 11, 15], target: 18});
+          break;
+        case 2001:
+          worker.terminate();
+          break;
+        default:
+          worker.postMessage({type: 1002, message: '你说啥？'});
+      }
+    };
+
+    // 向子线程发送消息
+    worker.postMessage({type: 1001, message: '你瞅啥！'});
+    // worker.postMessage({
+    //   a: 'aaa',
+    //   b: {
+    //     ba: '{}\\'
+    //   }
+    // });
+
+    // 主线程
+    // worker.terminate();
+
+    var twoSum = function (nums, target) {
+      let map = {};
+      for (let i = 0, l = nums.length; i < l; i++) {
+        if (map[nums[i]] >= 0) {
+          return [map[nums[i]], nums[i]]
+        }
+        map[target - nums[i]] = nums[i];
+      }
+    };
+
+    var twoSum1 = function (nums, target) {
+      let map = {};
+      for (let i = 0, l = nums.length; i < l; i++) {
+        if (map[target - nums[i]] > 0) {
+          return [target - nums[i], nums[i]]
+        }
+        map[nums[i]] = 1;
+      }
+    };
+    console.log(twoSum1([2, 7, 11, 15], 18));
+  </script>
+</div>
+</body>
+<style>
+  .container {
+    float: left;
+    position: relative;
+    left: 50%;
+    border: 1px solid #00CA9D;
+  }
+
+  .container ul {
+    border: 1px solid #FE4C2C;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    position: relative;
+    left: -50%;
+  }
+
+  .container li {
+    float: left;
+    display: inline;
+    margin-right: 8px;
+  }
+</style>
+</html>

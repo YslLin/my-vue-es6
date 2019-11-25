@@ -237,9 +237,13 @@
 
           this.list = data1.filter(l => {
             const geo = GeoJSON.toGeoJSON(l.points);
-            var area = turf.area(geo);
-            if(area < 1000 && !ClipperLib.containKinks(geo)){
-              l.area = area;
+            // var area = turf.area(geo);
+            // if(area < 1000 && !ClipperLib.containKinks(geo)){
+            //   l.area = area;
+            //   return true
+            // }
+            if(ClipperLib.containKinks(geo)){
+              // l.area = area;
               return true
             }
             return false;

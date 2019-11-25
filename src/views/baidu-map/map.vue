@@ -167,6 +167,63 @@
         this.map.centerAndZoom('北京', 13);
         this.map.enableScrollWheelZoom();
 
+        // let arr = [];
+        // let myDis = new BMapLib.DistanceTool(this.map);
+        // myDis.open();  //开启鼠标测距
+        // myDis.addEventListener("addpoint", function (e) {
+        //   console.log(e.point);
+        //   arr.push(e.point);
+        //   if (arr.length > 1) {
+        //     for (let i = 1; i < arr.length; i++) {
+        //       var from = turf.point([arr[i - 1].lng, arr[i - 1].lat]);
+        //       var to = turf.point([arr[i].lng, arr[i].lat]);
+        //       var options = {units: 'kilometers'};
+        //
+        //       var distance = turf.distance(from, to, options);
+        //       console.log(distance);
+        //
+        //       console.log(getShortDistance(arr[i - 1].lng + ',' + arr[i - 1].lat, arr[i].lng + ',' + arr[i].lat));
+        //       console.log('------------------------------');
+        //     }
+        //   }
+        // });
+        // 计算两点之间的距离 单位：米
+        // function distance(from, to) {
+        //   if (!from || !to) return;
+        //   let point1,point2,lng1, lat1, lng2, lat2;
+        //   let ew1, ns1, ew2, ns2;
+        //   let dx, dy, dew;
+        //   // 经纬度赋值
+        //   point1 = from.split(',');
+        //   point2 = to.split(',');
+        //   lng1 = point1[0];
+        //   lat1 = point1[1];
+        //   lng2 = point2[0];
+        //   lat2 = point2[1];
+        //   // 坐标格式校验
+        //   if (!lng1 || !lat1 || !lng2 || !lat2) return;
+        //   let doublePat = /^(\d+)\.(\d+)$/g;
+        //   if (!lng1.match(doublePat) || !lat1.match(doublePat) || !lng2.match(doublePat) || !lat2.match(doublePat)) return;
+        //   // 角度转换为弧度
+        //   ew1 = lng1 * 0.01745329252;
+        //   ns1 = lat1 * 0.01745329252;
+        //   ew2 = lng2 * 0.01745329252;
+        //   ns2 = lat2 * 0.01745329252;
+        //   // 经度差
+        //   dew = ew1 - ew2;
+        //   // 若跨东经和西经180 度，进行调整
+        //   if (dew > 3.14159265359)
+        //     dew = 6.28318530712 - dew;
+        //   else if (dew < -3.14159265359)
+        //     dew = 6.28318530712 + dew;
+        //   dx = 6370693.5 * Math.cos(ns1) * dew; // 东西方向长度(在纬度圈上的投影长度)
+        //   dy = 6370693.5 * (ns1 - ns2); // 南北方向长度(在经度圈上的投影长度)
+        //   // 勾股定理求斜边长
+        //   return Math.sqrt(dx * dx + dy * dy).toFixed(0);
+        // }
+        //
+        // console.log(distance('116.44572628870428,39.94024977864967','116.42991611172866,39.91280539938402'));
+
         // ---- 重写多边形渲染函数成功
         // 测试重写多边形覆盖物渲染函数 同时不改变原有渲染内部操作
         // 目的是实现在多边形渲染时添加自定义的判断操作
