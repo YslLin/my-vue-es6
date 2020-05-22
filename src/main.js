@@ -10,8 +10,10 @@ import iview from 'iview';
 import './mock/index.js'
 import '@/views/main-components/theme-switch/theme/index.less';
 import "./utils/iconfont/test"; // 阿里图标库
+import VueWorker from 'vue-worker'
 
 Vue.use(MuseUI);
+Vue.use(VueWorker);
 axios.defaults.withCredentials = true;
 Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;

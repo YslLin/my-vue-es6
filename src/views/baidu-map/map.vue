@@ -167,6 +167,8 @@
         this.map.centerAndZoom('北京', 13);
         this.map.enableScrollWheelZoom();
 
+        this.initData();
+
         // let arr = [];
         // let myDis = new BMapLib.DistanceTool(this.map);
         // myDis.open();  //开启鼠标测距

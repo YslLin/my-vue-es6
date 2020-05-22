@@ -72,7 +72,16 @@ export const appRouter = [
       {path: 'appdy', title: 'MuseUI', name: 'appdy', component: () => import('@/views/museUI/appdy')},
       {path: 'ddsq', title: 'MuseUI', name: 'ddsq', component: () => import('@/views/museUI/ddsq')}
     ]
-  }
+  },
+  {
+    path: '/worker',
+    icon: 'key',
+    title: 'js 多线程',
+    component: Main,
+    children: [
+      {path: 'index', title: 'worker 多线程', name: 'worker1', component: () => import('@/views/worker/test1')}
+    ]
+  },
 ];
 
 export const routers = [

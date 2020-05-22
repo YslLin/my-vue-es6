@@ -44,6 +44,10 @@
             <Icon type="lock-combination"/>
             <span>钉钉授权</span>
           </menu-item>
+          <menu-item name="worker1">
+            <Icon type="lock-combination"/>
+            <span>多线程</span>
+          </menu-item>
         </i-menu>
       </sider>
       <layout>

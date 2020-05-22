@@ -1,4 +1,5 @@
 import {GeoJSON, ClipperLib, Clipper, Snapping} from './Plugin'
+import data5 from '../data-gis/data5'
 
 const markerImg = require('@/assets/HT.png');
 
@@ -33,7 +34,46 @@ const YSL = {
     }
   },
   methods: {
-
+    /**
+     * 初始化渲染简化后的区域
+     */
+    initData() {
+      // let ab =       [[117.4505255087927, 28.34946887923974],
+      //   [117.3856011198447, 28.33260020761527],
+      //   [117.4030490077457, 28.3371335376158]];
+      // ab.forEach(v => {
+      //   this.polygon = new BMap.Marker(new BMap.Point(v[0], v[1]));
+      //   this.map.addOverlay(this.polygon);
+      // })
+      // this.bbb(new BMap.Polygon([{"lng":117.4505255087927,"lat":28.34946887923974},{"lng":117.3856011198447,"lat":28.33260020761527},{"lng":117.4030490077457,"lat":28.3371335376158}]));
+      //   this.map.addOverlay(this.polygon);
+      // console.log(1111);
+      // base.forEach(v => {
+      data5.forEach(v => {
+        this.polygon = new BMap.Polygon(v.coordinates, this.stylePolygon);
+        this.map.addOverlay(this.polygon);
+      });
+      //   (data4, turf) => {
+      //   let f = [];
+      //   data4.features[0].geometry.coordinates.forEach(v => {
+      //     f.push(turf.polygon([v]));
+      //   });
+      //   var fc = turf.featureCollection(f);
+      //   var combined = turf.combine(fc);
+      //   var com = turf.union(...f);
+      //   console.log(combined);
+      //   return com;
+      // }
+      // let a = turf.union(turf.polygon(data4.features[0].geometry.coordinates));
+      // this.polygon = new BMap.Polygon(a.features[0].geometry.coordinates[0]);
+      // this.map.addOverlay(this.polygon);
+      // data3.forEach(v => {
+      //   // 添加多边形区域
+      //   this.polygon = new BMap.Polygon(v.coordinates);
+      //   // this.polygon.setStrokeWeight(2);
+      //   this.map.addOverlay(this.polygon);
+      // });
+    },
     enableDraw() {
       if (!this.map) {
         return;
